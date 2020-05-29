@@ -366,6 +366,27 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
             coll.set_tensor_ref(TensorRef.from_non_graph_var(metric_name))
         self.tensor_to_collections[metric_name] = {coll}
 
+    def _save_model_outputs(self, logs):
+        if logs is None:
+            return
+
+        if (
+            self._is_collection_being_saved_for_step(CollectionKeys.OUTPUTS)
+            and self.mode == ModeKeys.TRAIN
+        ):
+            output_collection = self.collection_manager.get(CollectionKeys.OUTPUTS)
+            self._initialize_writers(only_initialize_if_missing=True)
+            y_pred = tf.convert_to_tensor(logs["y_pred"])
+            y_pred_export_name = "model_output/y_pred"
+            y = tf.convert_to_tensor(logs["y"])
+            y_export_name = "model_output/y"
+            output_collection.add_tensor(y, name=y_export_name, mode=self.mode)
+            output_collection.add_tensor(y_pred, name=y_pred_export_name, mode=self.mode)
+            self._save_for_tensor("y_pred", y_pred, check_before_write=False)
+            self._save_for_tensor("y", y, check_before_write=False)
+            self.tensor_to_collections[y_pred_export_name] = {output_collection}
+            self.tensor_to_collections[y_export_name].add(output_collection)
+
     def _save_metrics(self, batch, logs, force_save=False):
         # if force_save is True, doesn't check whether collection needs to be saved for steps
         if logs is None:
@@ -392,6 +413,7 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
         # some tensors available as value from within hook are saved here
         # weights, metrics
         self._save_metrics(batch, logs)
+        self._save_model_outputs(logs)
 
         if is_tf_version_2x() and tf.executing_eagerly():
             for tensor_ref in self.tensor_refs_to_save_this_step:
