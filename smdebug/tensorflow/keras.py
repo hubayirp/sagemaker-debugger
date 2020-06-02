@@ -382,8 +382,8 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
             y_export_name = "model_output/y"
             output_collection.add_tensor(y, name=y_export_name, mode=self.mode)
             output_collection.add_tensor(y_pred, name=y_pred_export_name, mode=self.mode)
-            self._save_for_tensor("y_pred", y_pred, check_before_write=False)
-            self._save_for_tensor("y", y, check_before_write=False)
+            self._save_for_tensor(y_pred_export_name, y_pred, check_before_write=False)
+            self._save_for_tensor(y_export_name, y, check_before_write=False)
             self.tensor_to_collections[y_pred_export_name] = {output_collection}
             self.tensor_to_collections[y_export_name].add(output_collection)
 
