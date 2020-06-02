@@ -376,14 +376,20 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
         ):
             output_collection = self.collection_manager.get(CollectionKeys.OUTPUTS)
             self._initialize_writers(only_initialize_if_missing=True)
-            y_pred = tf.convert_to_tensor(logs["y_pred"])
             y_pred_export_name = "model_output/y_pred"
-            y = tf.convert_to_tensor(logs["y"])
             y_export_name = "model_output/y"
-            output_collection.add(y, name=y_export_name, mode=self.mode)
-            output_collection.add(y_pred, name=y_pred_export_name, mode=self.mode)
-            self._save_for_tensor(y_pred_export_name, y_pred, check_before_write=False)
-            self._save_for_tensor(y_export_name, y, check_before_write=False)
+            output_collection.set_tensor_ref(logs["y_pred"], y_pred_export_name)
+            output_collection.set_tensor_ref(logs["y"], y_export_name)
+            y_export_name = "model_output/y"
+            # y_pred = tf.convert_to_tensor(logs["y_pred"])
+            # y_pred_export_name = "model_output/y_pred"
+            # y = tf.convert_to_tensor(logs["y"])
+            # y_export_name = "model_output/y"
+            # output_collection.add(y, name=y_export_name, mode=self.mode)
+            # output_collection.set_tensor_ref(y_pred, y_pred_export_name)
+            # output_collection.add(y_pred, name=y_pred_export_name, mode=self.mode)
+            # self._save_for_tensor(y_pred_export_name, y_pred, check_before_write=False)
+            # self._save_for_tensor(y_export_name, y, check_before_write=False)
             self.tensor_to_collections[y_pred_export_name] = {output_collection}
             self.tensor_to_collections[y_export_name] = {output_collection}
 
