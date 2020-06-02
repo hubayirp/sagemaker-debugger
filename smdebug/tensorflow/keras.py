@@ -382,10 +382,27 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
             y_export_name = "model_output/y"
             output_collection.add_tensor(y, name=y_export_name, mode=self.mode)
             output_collection.add_tensor(y_pred, name=y_pred_export_name, mode=self.mode)
-            self._save_for_tensor(y_pred_export_name, y_pred, check_before_write=False)
-            self._save_for_tensor(y_export_name, y, check_before_write=False)
-            self.tensor_to_collections[y_pred_export_name] = {output_collection}
-            self.tensor_to_collections[y_export_name].add(output_collection)
+            # self._save_for_tensor(y_pred_export_name, y_pred, check_before_write=False)
+            # self._save_for_tensor(y_export_name, y, check_before_write=False)
+            # self.tensor_to_collections[y_pred_export_name] = {output_collection}
+            # self.tensor_to_collections[y_export_name] = {output_collection}
+            colls_with_tensor = self._get_matching_collections(
+                self.mode, y_pred, "output", "model_output/y_pred", is_output_of_model=True
+            )
+
+            self._create_tensors_for_matching_collections(
+                self.mode, y_pred, y_pred_export_name, y_pred_export_name, colls_with_tensor
+            )
+            colls_with_tensor = self._get_matching_collections(
+                self.mode, y, "output", "model_output/y", is_output_of_model=True
+            )
+
+            self._create_tensors_for_matching_collections(
+                self.mode, y, y_export_name, y_export_name, colls_with_tensor
+            )
+            self._create_tensors_for_matching_collections(
+                self.mode, y, y_export_name, y_export_name, colls_with_tensor
+            )
 
     def _save_metrics(self, batch, logs, force_save=False):
         # if force_save is True, doesn't check whether collection needs to be saved for steps

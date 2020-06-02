@@ -79,7 +79,7 @@ class TensorRef:
         self.modes.add(mode)
 
     @classmethod
-    def from_tensor(cls, tensor, export_name=None, mode=None):
+    def from_tensor(cls, tensor, export_name=None, mode=None, type=None):
         try:
             if export_name is None:
                 export_name = tensor.name
