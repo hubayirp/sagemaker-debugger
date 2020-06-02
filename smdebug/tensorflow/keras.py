@@ -13,7 +13,7 @@ from smdebug.tensorflow.callable_cache import CallableCache
 # Local
 from .base_hook import TensorflowBaseHook
 from .collection import CollectionKeys
-from .tensor_ref import TensorRef, get_tf_names
+from .tensor_ref import TensorRef, TensorType, get_tf_names
 from .utils import (
     TFDistributionStrategy,
     get_export_name_for_keras,
@@ -377,16 +377,17 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
             output_collection = self.collection_manager.get(CollectionKeys.OUTPUTS)
             self._initialize_writers(only_initialize_if_missing=True)
             y_pred_export_name = "model_output/y_pred"
-            y_export_name = "model_output/y"
-            output_collection.set_tensor_ref(
-                tf.convert_to_tensor(logs["y_pred"]), y_pred_export_name
+            y = tf.convert_to_tensor(logs["y"])
+            y_pred = tf.convert_to_tensor(logs["y_pred"])
+            y_pred_ref = TensorRef.from_tensor(
+                y_pred, export_name=y_pred_export_name, mode=self.mode, type=TensorType.VARIABLE
             )
-            output_collection.set_tensor_ref(tf.convert_to_tensor(logs["y"]), y_export_name)
             y_export_name = "model_output/y"
-            # y_pred = tf.convert_to_tensor(logs["y_pred"])
-            # y_pred_export_name = "model_output/y_pred"
-            # y = tf.convert_to_tensor(logs["y"])
-            # y_export_name = "model_output/y"
+            y_ref = TensorRef.from_tensor(
+                y, export_name=y_export_name, mode=self.mode, type=TensorType.VARIABLE
+            )
+            output_collection.set_tensor_ref(y_pred, y_pred_export_name)
+            output_collection.set_tensor_ref(y, y_export_name)
             # output_collection.add(y, name=y_export_name, mode=self.mode)
             # output_collection.set_tensor_ref(y_pred, y_pred_export_name)
             # output_collection.add(y_pred, name=y_pred_export_name, mode=self.mode)
