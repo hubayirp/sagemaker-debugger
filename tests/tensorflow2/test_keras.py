@@ -394,13 +394,14 @@ def test_gradtape_persistent(out_dir, saveall):
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("saveall", [True, False])
-def test_keras_fit(out_dir, tf_eager_mode, saveall):
+@pytest.mark.parametrize("saveall", [True])
+def test_keras_fit(out_dir, saveall):
     hook = smd.KerasHook(out_dir=out_dir, save_all=saveall)
     ts = time.time()
     hook.save_scalar("foobar", 1, sm_metric=True, timestamp=ts)
     scalars_to_be_saved = dict()
     scalars_to_be_saved["scalar/foobar"] = (ts, 0)
+    tf_eager_mode = True
     helper_keras_fit(
         trial_dir=out_dir,
         hook=hook,
