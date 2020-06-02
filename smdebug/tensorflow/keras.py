@@ -378,8 +378,10 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
             self._initialize_writers(only_initialize_if_missing=True)
             y_pred_export_name = "model_output/y_pred"
             y_export_name = "model_output/y"
-            output_collection.set_tensor_ref(logs["y_pred"], y_pred_export_name)
-            output_collection.set_tensor_ref(logs["y"], y_export_name)
+            output_collection.set_tensor_ref(
+                tf.convert_to_tensor(logs["y_pred"]), y_pred_export_name
+            )
+            output_collection.set_tensor_ref(tf.convert_to_tensor(logs["y"]), y_export_name)
             y_export_name = "model_output/y"
             # y_pred = tf.convert_to_tensor(logs["y_pred"])
             # y_pred_export_name = "model_output/y_pred"
