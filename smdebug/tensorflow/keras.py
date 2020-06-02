@@ -383,11 +383,9 @@ class KerasHook(TensorflowBaseHook, tf.keras.callbacks.Callback):
                 y_pred, export_name=y_pred_export_name, mode=self.mode, type=TensorType.VARIABLE
             )
             y_export_name = "model_output/y"
-            y_ref = TensorRef.from_tensor(
-                y, export_name=y_export_name, mode=self.mode, type=TensorType.VARIABLE
-            )
-            output_collection.set_tensor_ref(y_pred_ref, y_pred_export_name)
-            output_collection.set_tensor_ref(y_ref, y_export_name)
+            output_collection.add_variable(y, y_export_name, self.mode)
+            output_collection.add_variable(y_pred, y_pred_export_name, self.mode)
+            # output_collection.set_tensor_ref(y_ref, y_export_name)
             # output_collection.add(y, name=y_export_name, mode=self.mode)
             # output_collection.set_tensor_ref(y_pred, y_pred_export_name)
             # output_collection.add(y_pred, name=y_pred_export_name, mode=self.mode)
